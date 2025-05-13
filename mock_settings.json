@@ -1,0 +1,5 @@
+{
+  "whitelist": ["zoom.us", "meet.google.com", "q.utoronto.ca", "docs.google.com", "google.com"],
+  "maxOffTaskTimeBeforeWarning": 180,
+  "message": "get back to work"
+}
