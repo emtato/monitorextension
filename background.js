@@ -18,7 +18,7 @@ function addTabToMap(tabId, tab) {
 chrome.tabs.onUpdated.addListener((tabId, changeDetails, tab) => {
         if (changeDetails.status === 'complete') {
             console.log("new tab/website created: " + tab.title);
-            console.log("taburl " + tab.url)
+            //console.log("taburl " + tab.url)
 
             //console.log("activestatus " + tab.active)
             //console.log("status " + tab.status)
@@ -33,16 +33,17 @@ chrome.tabs.onActivated.addListener(({tabId}) => { // how does this top part wor
     chrome.tabs.get(tabId, (tab) => {
         if (lastTab !== undefined) {
             lastTab.deactivate()
+            console.log("last tab active duration: " + lastTab.getDurationSoFar())
         }
-        console.log("tab switched to: " + tab.title);
 
+
+        if (!tabMap.has(tabId)) addTabToMap(tabId, tab);
         let tabObj = tabMap.get(tabId);
-        if (!tabObj) {
-            addTabToMap(tabId, tab)
-        }
+
+        console.log("tab switched to: " + tabObj.tabId + " " + tabObj.tabName);
+
         tabObj.activate()
         lastTab = tabObj;
-        console.log("last tab active duration: " + lastTab.getDurationSoFar())
     });
 });
 
@@ -67,13 +68,13 @@ class TabInfo {
 
     deactivate() { //tab switched away
         this.totalActiveDuration += Date.now() / 1000 - this.startTime;
-        console.log(this.tabName + " deactivated")
+        //console.log(this.tabName + " deactivated")
 
     }
 
     activate() { //switch to this tab
         this.startTime = Date.now() / 1000;
-        console.log(this.tabName + " activated")
+        //console.log(this.tabName + " activated")
 
     }
 
