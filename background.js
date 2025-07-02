@@ -15,6 +15,10 @@ function addTabToMap(tabId, tab) {
     }
 }
 
+function addTimeLimits(listWebsites, listLimits) {
+
+}
+
 chrome.tabs.onUpdated.addListener((tabId, changeDetails, tab) => {
         if (changeDetails.status === 'complete') {
             console.log("new tab/website created: " + tab.title);
@@ -63,6 +67,7 @@ class TabInfo {
         this.tabURL = "";
         this.startTime = Date.now() / 1000;
         this.totalActiveDuration = 0;
+        this.timeLimit = Math.infinity;
         this.active = true;
     }
 
