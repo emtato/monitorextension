@@ -1,14 +1,17 @@
 const tabMap = new Map();
 let lastTab
 
-function addTabToMap(tabId, tabObj) {
+function addTabToMap(tabId, tab) {
     if (tabMap.has(tabId)) {
         let inMap = tabMap.get(tabId);
-        if (inMap.tabName === "") inMap.tabName = tabObj.tabName
-        if (inMap.tabURL === "") inMap.tabURL = tabObj.tabURL
-        inMap.totalActiveDuration = Math.max(inMap.totalActiveDuration, tabObj.totalActiveDuration);
+        inMap.tabName = tab.title
+        inMap.tabURL = tab.url
+        // inMap.totalActiveDuration = Math.max(inMap.totalActiveDuration, tabObj.totalActiveDuration);
     } else {
-        tabMap.set(tabId, tabObj)
+        let newTab = new TabInfo(tabId);
+        newTab.tabName = tab.title
+        newTab.tabURL = tab.url
+        tabMap.set(tabId, newTab)
     }
 }
 
@@ -20,24 +23,22 @@ chrome.tabs.onUpdated.addListener((tabId, changeDetails, tab) => {
             //console.log("activestatus " + tab.active)
             //console.log("status " + tab.status)
 
-            let newTab = new TabInfo(tabId);
-            newTab.tabName = tab.title;
-            newTab.tabURL = tab.url;
-            addTabToMap(newTab)
-            console.log("creation date " + newtab.startTime)
+            addTabToMap(tabId, tab)
+            newTab = tabMap.get(tabId)
+            //console.log("creation date " + newTab.startTime)
         }
     }
 );
-chrome.tabs.onActivated.addListener(({tabId}) => { // how does this work
+chrome.tabs.onActivated.addListener(({tabId}) => { // how does this top part work
     chrome.tabs.get(tabId, (tab) => {
         if (lastTab !== undefined) {
             lastTab.deactivate()
         }
         console.log("tab switched to: " + tab.title);
+
         let tabObj = tabMap.get(tabId);
         if (!tabObj) {
-            tabObj = new TabInfo(tabId);
-            addTabToMap(tabObj)
+            addTabToMap(tabId, tab)
         }
         tabObj.activate()
         lastTab = tabObj;
@@ -65,11 +66,15 @@ class TabInfo {
     }
 
     deactivate() { //tab switched away
-        this.totalActiveDuration += Date.now() - this.startTime;
+        this.totalActiveDuration += Date.now() / 1000 - this.startTime;
+        console.log(this.tabName + " deactivated")
+
     }
 
     activate() { //switch to this tab
         this.startTime = Date.now() / 1000;
+        console.log(this.tabName + " activated")
+
     }
 
     getDurationSoFar() {
